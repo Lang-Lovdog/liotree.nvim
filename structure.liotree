@@ -1,0 +1,14 @@
+| liotree.nvim/
+|- lua/
+|=-
+|-- liotree/
+|=-
+|--- parser.lua              > Tree‑sitter helpers (get node path, node type) ||
+|--- summoner.lua            > path resolution logic (handles patterns, literals, directory creation) ||
+|--- picker.lua              > telescope/fzf integration (the `lio_picker` function) ||
+|--- decor.lua               > conceal and highlighting (from liotree-conf.lua) ||
+|--- config.lua              > user options (picker, createdir policy, etc.) ||
+|==
+|==
+|-- structure.liotree        > This file! ||
+|-- README.md                 > Git presentation file ||
