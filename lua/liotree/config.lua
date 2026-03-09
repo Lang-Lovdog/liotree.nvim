@@ -57,23 +57,21 @@ M.functions = {
     ["LiotreeCopyPath"]           = "copy_path"           ,
 }
 
-local function set_comands()  set_filetype_stuff() end
 
-M.setup = function(opts)
-  local highlight_files = { "*.liotree" }
-  set_filetype_stuff()
-  if opts == nil then opts = {} end
-  for k, v in pairs(opts) do
-    M[k] = v
-  end
-  vim.list_extend(highlight_files, M.liotree_affected_files)
-  set_comands()
-  decor.set_colors(highlights, highlight_files)
+
+local function set_comands()
+    for k, v in pairs(M.functions) do
+        if parser[v] ~= nil then
+            vim.api.nvim_create_user_command(k, parser[v], {})
+        elseif summoner[v] ~= nil then
+            vim.api.nvim_create_user_command(k, summoner[v], {})
+        end
+    end
 end
 
 local function set_filetype_stuff()
   vim.api.nvim_create_autocmd("FileType", {
-  pattern = "*.liotree",
+  pattern = "liotree",
   callback = function()
       for k, v in pairs(M.keymaps) do
           if parser[v] then
@@ -88,7 +86,7 @@ local function set_filetype_stuff()
     },
   })
   vim.api.nvim_create_autocmd("FileType", {
-    pattern = "*.liotree",
+    pattern = "liotree",
     callback = function()
       vim.treesitter.start()
     end,
@@ -103,16 +101,18 @@ local function set_filetype_stuff()
   })
 end
 
-local function set_comands()
-    for k, v in pairs(M.functions) do
-        if parser[v] ~= nil then
-            vim.api.nvim_create_user_command(k, parser[v], {})
-        elseif summoner[v] ~= nil then
-            vim.api.nvim_create_user_command(k, summoner[v], {})
-        end
-    end
-end
 
+M.setup = function(opts)
+  local highlight_files = { "*.liotree" }
+  set_filetype_stuff()
+  if opts == nil then opts = {} end
+  for k, v in pairs(opts) do
+    M[k] = v
+  end
+  vim.list_extend(highlight_files, M.liotree_affected_files)
+  set_comands()
+  decor.set_colors(highlights, highlight_files)
+end
 
 
 

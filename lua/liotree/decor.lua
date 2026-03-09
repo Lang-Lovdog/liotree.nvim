@@ -1,64 +1,21 @@
 local M = {}
 
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.liotree = {
+  install_info = {
+    url = "https://github.com/Lang-Lovdog/tree-sitter-liotree",
+    files = {"src/parser.c"},
+    branch = "main",
+    queries = 'queries/liotree',
+  },
+  filetype = "liotree",
+}
+
+-- Install liotree parser once and for all
+require("nvim-treesitter.install").ensure_installed({"liotree"})
 
 
-M.set_colors = function(highlights, highlight_files)
-    local liotree_groups = {
-        ["@liotree.comment.text"     ] = highlights.comments            ,
-        ["@liotree.directory"        ] = highlights.dirname             ,
-        ["@liotree.file"             ] = highlights.filename            ,
-        ["@liotree.bar"              ] = highlights.pipebar             ,
-        ["@liotree.leaf"             ] = highlights.branchend           ,
-        ["@liotree.bridge"           ] = highlights.branch              ,
-        ["@punctuation.bracket.open" ] = highlights.opendir             ,
-        ["@punctuation.bracket.close"] = highlights.closedir            ,
-        ["@conceal.delimiter.open"   ] = highlights.conceal.opendir     ,
-        ["@conceal.delimiter.closed" ] = highlights.conceal.closedir    ,
-        ["@conceal.root"             ] = highlights.conceal.rootsymbol  ,
-        ["@conceal.entry"            ] = highlights.conceal.entry       ,
-        ["@conceal.comment.bar"      ] = highlights.conceal.commentpipe ,
-        ["@conceal.line"             ] = highlights.conceal.line        ,
-        ["@conceal.pipe"             ] = highlights.conceal.pipebar     ,
-        ["@conceal.dir"              ] = highlights.conceal.dirsymbol   ,
-        ["@conceal.file"             ] = highlights.conceal.filesymbol  ,
-        ["conceal.comment.open"      ] = highlights.conceal.opencomment ,
-        ["conceal.comment.closed"    ] = highlights.conceal.closecomment,
-        ["conceal.formatspace"       ] = highlights.conceal.formatspace ,
-    }
-
-    local hl = vim.api.nvim_set_hl
-    vim.api.nvim_create_autocmd("ColorScheme", {
-      pattern = highlight_files,
-      callback = function()
-        for group, settings in pairs(liotree_groups) do
-          if group ~= "" and settings ~= nil then
-            hl(0, group, settings)
-          end
-        end
-      end
-    })
-    -- If no treesitter parser is available, fallback to matchit
-    vim.api.nvim_create_autocmd("BufReadPost", {
-      pattern = "*.liotree",
-      callback = function()
-        -- The "Golden Standard" for Tree-sitter folding
-        vim.opt_local.foldmethod = "expr"
-        vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-        
-        -- Start with the tree expanded so you can see your Cyan comments
-        vim.opt_local.foldlevel = 99
-      end,
-    })
-
-    local ns_id = vim.api.nvim_create_namespace("LiotreeDecor")
-    vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-        pattern = "*.liotree",
-        callback = function(args)
-            apply_liotree_decor(args.buf)
-        end,
-    })
-end
-
+local ns_id = vim.api.nvim_create_namespace("LiotreeDecor")
 
 local function apply_liotree_decor(bufnr)
     if vim.opt_local.conceallevel:get() == 0 then return end
@@ -115,6 +72,62 @@ local function apply_liotree_decor(bufnr)
             })
         end
     end
+end
+
+M.set_colors = function(highlights, highlight_files)
+    local liotree_groups = {
+        ["@liotree.comment.text"     ] = highlights.comments            ,
+        ["@liotree.directory"        ] = highlights.dirname             ,
+        ["@liotree.file"             ] = highlights.filename            ,
+        ["@liotree.bar"              ] = highlights.pipebar             ,
+        ["@liotree.leaf"             ] = highlights.branchend           ,
+        ["@liotree.bridge"           ] = highlights.branch              ,
+        ["@punctuation.bracket.open" ] = highlights.opendir             ,
+        ["@punctuation.bracket.close"] = highlights.closedir            ,
+        ["@conceal.delimiter.open"   ] = highlights.conceal.opendir     ,
+        ["@conceal.delimiter.closed" ] = highlights.conceal.closedir    ,
+        ["@conceal.root"             ] = highlights.conceal.rootsymbol  ,
+        ["@conceal.entry"            ] = highlights.conceal.entry       ,
+        ["@conceal.comment.bar"      ] = highlights.conceal.commentpipe ,
+        ["@conceal.line"             ] = highlights.conceal.line        ,
+        ["@conceal.pipe"             ] = highlights.conceal.pipebar     ,
+        ["@conceal.dir"              ] = highlights.conceal.dirsymbol   ,
+        ["@conceal.file"             ] = highlights.conceal.filesymbol  ,
+        ["conceal.comment.open"      ] = highlights.conceal.opencomment ,
+        ["conceal.comment.closed"    ] = highlights.conceal.closecomment,
+        ["conceal.formatspace"       ] = highlights.conceal.formatspace ,
+    }
+
+    local hl = vim.api.nvim_set_hl
+    vim.api.nvim_create_autocmd("ColorScheme", {
+      pattern = highlight_files,
+      callback = function()
+        for group, settings in pairs(liotree_groups) do
+          if group ~= "" and settings ~= nil then
+            hl(0, group, settings)
+          end
+        end
+      end
+    })
+    -- If no treesitter parser is available, fallback to matchit
+    vim.api.nvim_create_autocmd("BufReadPost", {
+      pattern = "liotree",
+      callback = function()
+        -- The "Golden Standard" for Tree-sitter folding
+        vim.opt_local.foldmethod = "expr"
+        vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+        
+        -- Start with the tree expanded so you can see your Cyan comments
+        vim.opt_local.foldlevel = 99
+      end,
+    })
+
+    vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+        pattern = "*.liotree",
+        callback = function(args)
+            apply_liotree_decor(args.buf)
+        end,
+    })
 end
 
 
