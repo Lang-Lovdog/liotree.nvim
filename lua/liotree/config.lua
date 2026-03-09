@@ -57,7 +57,20 @@ M.functions = {
     ["LiotreeCopyPath"]           = "copy_path"           ,
 }
 
-local function set_filetype_stuff()
+M.setup = function(opts)
+  local highlight_files = { "*.liotree" }
+  set_filetype_stuff()
+  if opts == nil then opts = {} end
+  for k, v in pairs(opts) do
+    M[k] = v
+  end
+  vim.list_extend(highlight_files, M.liotree_affected_files)
+  M.set_comands()
+  M.set_keymaps()
+  decor.set_colors(highlights, highlight_files)
+end
+
+local M.set_filetype_stuff = function ()
   vim.api.nvim_create_autocmd("FileType", {
   pattern = "*.liotree",
   callback = function()
@@ -89,20 +102,7 @@ local function set_filetype_stuff()
   })
 end
 
-M.setup = function(opts)
-  local highlight_files = { "*.liotree" }
-  set_filetype_stuff()
-  if opts == nil then opts = {} end
-  for k, v in pairs(opts) do
-    M[k] = v
-  end
-  vim.list_extend(highlight_files, M.liotree_affected_files)
-  set_comands()
-  set_keymaps()
-  decor.set_colors(highlights, highlight_files)
-end
-
-local function set_comands()
+local M.set_comands = function()
     for k, v in pairs(M.functions) do
         if parser[v] ~= nil then
             vim.api.nvim_create_user_command(k, parser[v], {})
