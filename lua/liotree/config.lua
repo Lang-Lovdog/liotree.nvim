@@ -43,10 +43,10 @@ local highlights   = {
 }
 
 M.keymaps = {
---    ["<CR>"]         = "opener"              ,
---    ["<leader> lmk"] = "set_mark_copy_ref"   ,
---    ["<leader> lmc"] = "clear_mark_copy_ref" ,
---    ["<leader> lcp"] = "copy_path"           ,
+    ["<CR>"]         = "opener"              ,
+    ["<leader> lmk"] = "set_mark_copy_ref"   ,
+    ["<leader> lmc"] = "clear_mark_copy_ref" ,
+    ["<leader> lcp"] = "copy_path"           ,
 }
 
 M.functions = {
