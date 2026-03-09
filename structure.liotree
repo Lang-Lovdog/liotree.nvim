@@ -8,6 +8,8 @@
 |--- picker.lua              > telescope/fzf integration (the `lio_picker` function) ||
 |--- decor.lua               > conceal and highlighting (from liotree-conf.lua) ||
 |--- config.lua              > user options (picker, createdir policy, etc.) ||
+|--- executer.lua            > If execute file, let's do smthn ||
+|--- utils-parser.lua        > Since parser is too long, I'll need this ||
 |==
 |==
 |-- structure.liotree        > This file! ||
