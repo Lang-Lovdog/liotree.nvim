@@ -236,7 +236,7 @@ end
 
 
 
-M.opener = function ()
+local function opener ()
     local ok, node = pcall(vim.treesitter.get_node)
     if not ok or not node then return end
 
@@ -263,14 +263,14 @@ end
 M.copy_path = function()
     copy_base_dir = vim.fn.expand("%:p:h")
     si_copy()
-    M.opener()
+    opener()
     no_copy()
 end
 
 M.set_mark_copy_ref= function()
     copy_base_dir = vim.fn.expand("%:p:h")
     si_copy_mark()
-    M.opener()
+    opener()
     no_copy_mark()
 end
 
@@ -278,6 +278,11 @@ M.clear_mark_copy_ref = function()
     copy_reference = nil
 end
 
+M.openit = function()
+    no_copy()
+    no_copy_mark()
+    opener()
+end
 
 
 

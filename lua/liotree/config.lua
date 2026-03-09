@@ -43,14 +43,14 @@ local highlights   = {
 }
 
 M.keymaps = {
-    ["<CR>"]         = "opener"              ,
+    ["<CR>"]         = "openit"              ,
     ["<leader> lmk"] = "set_mark_copy_ref"   ,
     ["<leader> lmc"] = "clear_mark_copy_ref" ,
     ["<leader> lcp"] = "copy_path"           ,
 }
 
 M.functions = {
-    ["LiotreeOpen"]               = "opener"              ,
+    ["LiotreeOpen"]               = "openit"              ,
     ["LiotreeSummon"]             = "liotree_summon"      ,
     ["LiotreeSetCopyReference"]   = "set_mark_copy_ref"   ,
     ["LiotreeClearCopyReference"] = "clear_mark_copy_ref" ,
