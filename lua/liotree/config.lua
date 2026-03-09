@@ -110,8 +110,8 @@ M.setup = function(opts)
     M[k] = v
   end
   vim.list_extend(highlight_files, M.liotree_affected_files)
-  M.set_comands()
-  M.set_keymaps()
+  set_comands()
+  set_keymaps()
   decor.set_colors(highlights, highlight_files)
 end
 
