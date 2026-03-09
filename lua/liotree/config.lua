@@ -57,6 +57,7 @@ M.functions = {
     ["LiotreeCopyPath"]           = "copy_path"           ,
 }
 
+local set_comands, set_filetype_stuff
 
 M.setup = function(opts)
   local highlight_files = { "*.liotree" }
@@ -102,7 +103,7 @@ local function set_filetype_stuff()
   })
 end
 
-function set_comands()
+local function set_comands()
     for k, v in pairs(M.functions) do
         if parser[v] ~= nil then
             vim.api.nvim_create_user_command(k, parser[v], {})
