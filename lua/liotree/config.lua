@@ -40,7 +40,7 @@ local highlights   = {
 }
 
 M.keymaps = {
-    ["<CR>"       ]  = "openit"             ,
+    ["<CR>"       ] = "openit"             ,
     ["<leader>lmk"] = "set_mark_copy_ref"   ,
     ["<leader>lmc"] = "clear_mark_copy_ref" ,
     ["<leader>lcp"] = "copy_path"           ,
@@ -48,7 +48,7 @@ M.keymaps = {
 }
 
 M.global_keymaps = {
-    ["<leader>lop"] = "liotree_summon"      ,
+    ["<leader>lt"] = "liotree_summon"      ,
 }
 
 M.functions = {
