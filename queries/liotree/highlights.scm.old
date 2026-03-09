@@ -1,0 +1,55 @@
+; --- Structural Conceals ---
+
+; Root marker icon
+((root_bar) @conceal
+  (#set! @conceal "conceal" ""))
+
+; Entry bar (the ├ icon)
+((entry_bar) @conceal
+  (#set! @conceal "conceal" "├"))
+
+; Handle every single dash/plus individually
+; 1. Target ANY depth_mark that is part of a directory entry
+((entry 
+    name: (directory_name)) @dir_entry
+  (depth_mark) @conceal
+  (#set! @conceal "conceal" ""))
+
+; 2. Target ANY depth_mark that is part of a file entry
+((entry 
+    name: (file_name)) @file_entry
+  (depth_mark) @conceal
+  (#set! @conceal "conceal" ""))
+
+; 3. Handle the 'line' marks
+; We use a lower-priority match for the "extension" lines
+((depth_mark) @operator
+  (#set! @operator "conceal" "─"))
+
+; In-comment bars (|) concealed as │
+((comment_newline "|" @conceal)
+(#set! @conceal "conceal" "│"))
+
+; --- Comment Logic ---
+
+; Start and End markers
+((comment ">" @conceal)
+  (#set! @conceal "conceal" "▶"))
+
+((comment "||" @conceal)
+  (#set! @conceal "conceal" "█"))
+
+; Spell on comment, not on names
+(comment) @comment.liotree @spell
+(directory_name) @function @nospell
+(file_name) @type @nospell
+(file_name) @none
+
+; Types
+(comment_newline "|") @type
+(depth_mark) @operator
+(directory_name) @function
+(file_name) @type
+
+((comment) @injection.content
+  (#set! injection.language "latex"))
