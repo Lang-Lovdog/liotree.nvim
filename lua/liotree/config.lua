@@ -21,7 +21,7 @@ local highlights   = {
   branch     = { fg="#00dd44",             italic=false, force=true ,                },
   opendir    = { fg="#fb0bdb", bold=true , italic=false, force=true ,                },
   closedir   = { fg="#f72cf7", bold=false, italic=false, force=true ,                },
-  conceal    = {                                                                          ,
+  conceal    = {
     opendir      = { fg="#88ff00", bold=true , italic=false, force=true ,                },
     closedir     = { fg="#00ff88", bold=true ,               force=true ,                },
     rootsymbol   = { fg="#ffffff",                                                       },
