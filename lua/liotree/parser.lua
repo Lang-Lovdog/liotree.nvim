@@ -1,9 +1,19 @@
-local conf = require("liotree.config")
 local lio_picker = require("liotree.picker").lio_picker
 local copy_mode = false
 local copy_relative_mark = false
 local copy_reference = nil
 local copy_base_dir = nil
+M.conf = {
+    create_non_existent_dir = 1,
+    open_non_existent_file  = 1
+}
+
+M.set_conf = function(conf)
+    if conf == nil then conf = {} end
+    for k, v in pairs(conf) do
+        M.conf[k] = v
+    end
+end
 
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 parser_config.liotree = {

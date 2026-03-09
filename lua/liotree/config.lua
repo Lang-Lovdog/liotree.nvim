@@ -11,6 +11,10 @@ M.liotree_affected_files = {}
 M.open_non_existent_file = 1
 -- [0] No, [1] Ask, [2] Yes
 M.create_non_existent_dir = 1
+parser.set_conf({
+    open_non_existent_file = M.open_non_existent_file,
+    create_non_existent_dir = M.create_non_existent_dir,
+})
 
 local highlights   = {
   comments   = { fg="#66ddee",             italic=true , force=false,                },
