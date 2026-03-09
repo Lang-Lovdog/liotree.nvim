@@ -1,25 +1,31 @@
 local lio_picker = require("liotree.picker").lio_picker
-local copy_mode = false
+local executer   = require("liotree.executer")
+local utilsp     = require("liotree.utils-parser")
+local copy_mode          = false
 local copy_relative_mark = false
-local copy_reference = nil
-local copy_base_dir = nil
+local copy_reference     = nil
+local copy_base_dir      = nil
+local execute_mode       = false
+local path_relative_to   = utilsp.path_relative_to
 
 local M = {}
 
 
-local function si_copy() copy_mode = true  end
-local function no_copy() copy_mode = false end
-local function si_copy_mark() copy_relative_mark = true end
+local function si_copy     () copy_mode          = true  end
+local function no_copy     () copy_mode          = false end
+local function si_copy_mark() copy_relative_mark = true  end
 local function no_copy_mark() copy_relative_mark = false end
+local function si_execute  () execute_mode       = true  end
+local function no_execute  () execute_mode       = false end
 
 local function do_copy(absolute_path)
     local result
     if copy_reference then
         -- Relative to the marked directory
-        result = vim.fn.fnamemodify(absolute_path, ":~:" .. copy_reference)
+        result = path_relative_to(copy_reference, absolute_path)
     else
         -- Relative to the liotree file's directory
-        result = vim.fn.fnamemodify(absolute_path, ":~:" .. copy_base_dir)
+        result = path_relative_to(copy_base_dir, absolute_path)
     end
     vim.fn.setreg('+', result)
     print("Copied: " .. result)
@@ -106,6 +112,11 @@ proceed = function (resolved_path, remaining_parts, type)
           no_copy_mark()
           return
       end
+  end
+  if execute_mode then
+    executer.execute(resolved_path, copy_reference)
+    no_execute()
+    return
   end
   if type == "directory_entry" then
       handle_directory(resolved_path)
@@ -263,15 +274,15 @@ end
 M.copy_path = function()
     copy_base_dir = vim.fn.expand("%:p:h")
     si_copy()
+    no_copy_mark()
     opener()
-    no_copy()
 end
 
 M.set_mark_copy_ref= function()
     copy_base_dir = vim.fn.expand("%:p:h")
     si_copy_mark()
+    no_copy()
     opener()
-    no_copy_mark()
 end
 
 M.clear_mark_copy_ref = function()
@@ -284,6 +295,10 @@ M.openit = function()
     opener()
 end
 
+M.execute = function()
+    si_execute()
+    opener()
+end
 
 
  return M
