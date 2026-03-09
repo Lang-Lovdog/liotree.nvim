@@ -6,7 +6,7 @@ local M = {}
 
 M.picker = "telescope"
 -- Pattern list of files where the liotree should be concealed
-M.liotree_affected_files = {}
+M.liotree_affected_colorschemes = {}
 -- [0] No, [1] Yes
 M.open_non_existent_file = 1
 -- [0] No, [1] Ask, [2] Yes
@@ -103,14 +103,14 @@ end
 
 
 M.setup = function(opts)
-  local highlight_files = { "*.liotree" }
+  local highlight_colorschemes = { "lovdog*", "lang*", "*" }
   set_filetype_stuff()
   if opts == nil then opts = {} end
   for k, v in pairs(opts) do
     M[k] = v
   end
-  vim.list_extend(highlight_files, M.liotree_affected_files)
   set_comands()
+  vim.list_extend(highlight_colorschemes, M.liotree_affected_colorschemes)
   decor.set_colors(highlights, highlight_files)
 end
 

@@ -99,6 +99,11 @@ M.set_colors = function(highlights, highlight_files)
     }
 
     local hl = vim.api.nvim_set_hl
+    for group, settings in pairs(liotree_groups) do
+      if group ~= "" and settings ~= nil then
+        hl(0, group, settings)
+      end
+    end
     vim.api.nvim_create_autocmd("ColorScheme", {
       pattern = highlight_files,
       callback = function()

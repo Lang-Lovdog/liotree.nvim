@@ -39,52 +39,8 @@ M.set_conf = function(conf)
 end
 
 
-local proceed, resolve_step
-
-
-local function permutable_pattern_expand(pattern_name)
-    local results = { pattern_name }
-    while true do
-        local new_results = {}
-        local expanded = false
-        for _, s in ipairs(results) do
-            local start, finish, content = s:find("%[(.-)%]")
-            if start then
-                expanded = true
-                for choice in content:gmatch("([^|]+)") do
-                    table.insert(new_results, s:sub(1, start-1) .. choice .. s:sub(finish+1))
-                end
-            else
-                table.insert(new_results, s)
-            end
-        end
-        results = new_results
-        if not expanded then break end
-    end
-    return results
-end
-
-local function pattern_handler(pattern_name, current_base)
-    local elements = {}
-    -- Remove semicolons
-    local inner = pattern_name:gsub("^;", ""):gsub(";$", "")
-    -- Expand any [a|b|c] constructs
-    local expanded_patterns = permutable_pattern_expand(inner)
-    for _, pat in ipairs(expanded_patterns) do
-        -- pat may contain wildcards like * – vim.fn.glob handles them
-        local matches = vim.fn.glob(current_base .. "/" .. pat, false, true)
-        vim.list_extend(elements, matches)
-    end
-    return elements
-end
-
-local function is_pattern(segment)
-    return segment:match("^;.*;$") ~= nil
-end
-
-
 local function handle_file(path)
-  local open_non_existent = conf.open_non_existent_file or 1
+  local open_non_existent = M.conf.open_non_existent_file or 1
   if open_non_existent == 0 then
       print("File does not exist: " .. path)
       return
@@ -109,7 +65,7 @@ local function handle_directory(path)
           print("Directory is empty: " .. path)
       end
   else
-      local policy = conf.create_non_existent_dir or 1
+      local policy = M.conf.create_non_existent_dir or 1
       if policy == 0 then
           print("Directory does not exist: " .. path)
       elseif policy == 2 then
@@ -125,7 +81,11 @@ local function handle_directory(path)
   end
 end
 
-local function proceed(resolved_path, remaining_parts, type)
+
+local resolve_step, proceed
+
+
+proceed = function (resolved_path, remaining_parts, type)
   if #remaining_parts ~= 0 then
       resolve_step(resolved_path, remaining_parts, type)
       return
@@ -157,20 +117,62 @@ local function proceed(resolved_path, remaining_parts, type)
   end
 end
 
-local function handle_regex_element(matches, element, remaining_parts, type)
-  if #matches == 0 then
-      print("No matches for: " .. element)
-  else
-      -- Trigger picker for the folder/file match
-      local prompt = (#remaining_parts == 0) and "Select Final Match:" or "Select Path Segment:"
-      lio_picker(matches, prompt, function(choice)
-          if choice then proceed(choice, remaining_parts, type) end
-      end)
-  end
+local function permutable_pattern_expand(pattern_name)
+    local results = { pattern_name }
+    while true do
+        local new_results = {}
+        local expanded = false
+        for _, s in ipairs(results) do
+            local start, finish, content = s:find("%[(.-)%]")
+            if start then
+                if content:find("|") then
+                    -- This bracket contains a pipe → expand into alternatives
+                    expanded = true
+                    for choice in content:gmatch("([^|]+)") do
+                        table.insert(new_results, s:sub(1, start-1) .. choice .. s:sub(finish+1))
+                    end
+                else
+                    -- No pipe → keep bracket as is (will be turned into * later)
+                    table.insert(new_results, s)
+                end
+            else
+                table.insert(new_results, s)
+            end
+        end
+        results = new_results
+        if not expanded then break end
+    end
+    return results
 end
 
+local function pattern_handler(pattern_name, current_base)
+    local elements = {}
+    local inner = pattern_name:gsub("^;", ""):gsub(";$", "")
+    -- First expand pipe‑based brackets (e.g., [tex|pdf]) into multiple strings
+    local expanded_patterns = permutable_pattern_expand(inner)
+    for _, pat in ipairs(expanded_patterns) do
+        -- Convert any remaining brackets (without pipes) to '*'
+        -- e.g., name-[n].plt → name-*.plt
+        local glob_pat = pat:gsub("%[.-%]", "*")
+        local matches = vim.fn.glob(current_base .. "/" .. glob_pat, false, true)
+        vim.list_extend(elements, matches)
+    end
+    return elements
+end
 
-local function resolve_step(current_base, remaining_parts, type)
+local function is_pattern(segment)
+    return segment:match("^;.*;$") ~= nil
+end
+
+local function handle_regex_element(matches, remaining_parts, type)
+  -- Trigger picker for the folder/file match
+  local prompt = (#remaining_parts == 0) and "Select Final Match:" or "Select Path Segment:"
+  lio_picker(matches, prompt, function(choice)
+      if choice then proceed(choice, remaining_parts, type) end
+  end)
+end
+
+resolve_step = function (current_base, remaining_parts, type)
   -- 1. Grab the next part of the path
   local next_segment = table.remove(remaining_parts, 1)
   if not next_segment then return end -- Safety break
@@ -180,9 +182,9 @@ local function resolve_step(current_base, remaining_parts, type)
       local matches = pattern_handler(next_segment, current_base)
 
       if #matches == 0 then
-          print("No matches for: " .. next_segment)
+          print("No matches for rs: " .. next_segment)
       else
-          handle_regex_element(matches, next_segment, remaining_parts, type)
+          handle_regex_element(matches, remaining_parts, type)
       end
   else
       -- It's a literal, just M.proceed
