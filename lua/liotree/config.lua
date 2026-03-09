@@ -57,7 +57,7 @@ M.functions = {
     ["LiotreeCopyPath"]           = "copy_path"           ,
 }
 
-local set_comands, set_filetype_stuff
+local function set_comands()  set_filetype_stuff() end
 
 M.setup = function(opts)
   local highlight_files = { "*.liotree" }
